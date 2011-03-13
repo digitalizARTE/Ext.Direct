@@ -14,13 +14,13 @@ namespace Ext.Direct
             return objectType.IsSubclassOf(typeof(JContainer));
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             //no custom reading here
             throw new NotImplementedException();
         }
 
-        public override void WriteJson(JsonWriter writer, object value)
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             JContainer o = value as JContainer;
             if (o != null)
