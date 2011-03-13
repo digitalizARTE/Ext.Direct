@@ -22,5 +22,9 @@ namespace Ext.Direct
         {
         }
 
+        public DirectException(string msg, Exception innerException)
+            : base(msg, innerException)
+        {
+        }
     }
 }
