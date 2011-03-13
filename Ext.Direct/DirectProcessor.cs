@@ -42,27 +42,39 @@ namespace Ext.Direct
             {
                 UTF8Encoding encoding = new UTF8Encoding();
                 string json = encoding.GetString(httpRequest.BinaryRead(httpRequest.TotalBytes));
+
+                // Force into an array shape
+                if (!json.StartsWith("["))
+                {
+                    json = String.Format("[{0}]", json);
+                }
+
                 List<DirectRequest> requests = JsonConvert.DeserializeObject<List<DirectRequest>>(json);
-                if (requests.Count > 0)
+                //if (requests.Count > 0)
+                //{
+                JArray raw = JArray.Parse(json);
+                int i = 0;
+                foreach (DirectRequest request in requests)
                 {
-                    JArray raw = JArray.Parse(json);
-                    int i = 0;
-                    foreach (DirectRequest request in requests)
-                    {
-                        request.RequestData = (JObject) raw[i];
-                        responses.Add(DirectProcessor.ProcessRequest(provider, request));
-                        ++i;
-                    }
-                }
-                else
-                {
-                    DirectRequest request = JsonConvert.DeserializeObject<DirectRequest>(json);
-                    request.RequestData = JObject.Parse(json);
+                    request.RequestData = (JObject)raw[i];
                     responses.Add(DirectProcessor.ProcessRequest(provider, request));
+                    ++i;
                 }
+                //}
+                //else
+                //{
+                //    DirectRequest request = JsonConvert.DeserializeObject<DirectRequest>(json);
+                //    request.RequestData = JObject.Parse(json);
+                //    responses.Add(DirectProcessor.ProcessRequest(provider, request));
+                //}
             }
             DirectExecutionResponse response = new DirectExecutionResponse();
-            JsonSerializerSettings outputSettings = new JsonSerializerSettings() { DefaultValueHandling = DefaultValueHandling.Ignore };
+            JsonSerializerSettings outputSettings = new JsonSerializerSettings()
+            {
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
+
             foreach (JsonConverter converter in converters)
             {
                 outputSettings.Converters.Add(converter);
@@ -89,11 +101,10 @@ namespace Ext.Direct
             }
             catch (DirectException ex)
             {
-                r.ExceptionMessage = ex.Message;
+                r.ExceptionMessage = (ex.InnerException != null) ? ex.ToString() : ex.Message;
                 r.Type = DirectResponse.ResponseExceptionType;
             }
             return r;
         }
-
     }
 }
