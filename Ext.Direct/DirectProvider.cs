@@ -260,20 +260,40 @@ namespace Ext.Direct
                 {
                     throw new DirectException("Parameters length does not match");
                 }
-            } 
+            }
             try
             {
                 this.SanitizeDates(method.Method, request);
+
                 object[] param = request.Data;
-                if (method.ParseAsJson)
+
+                //if (method.ParseAsJson)
+                //{
+                //    param = new object[] { method.GetParseData(request.RequestData) };
+                //}
+
+                // If any of the parameters of the method we are calling are classes
+                // with the JsonObject attribute then we need to deserialize them...
+                var methodParams = method.Method.GetParameters();
+
+                Type parameterType;
+                for (int i = 0; i < methodParams.Length; ++i)
                 {
-                    param = new object[] { method.GetParseData(request.RequestData) };
+                    // Is parameter marked as a JsonObject?
+                    parameterType = methodParams[i].ParameterType;
+                    var attribs = parameterType.GetCustomAttributes(typeof(JsonObjectAttribute), false);
+
+                    if ((attribs != null) && (attribs.Length > 0))
+                    {
+                        param[i] = JsonConvert.DeserializeObject(param[i].ToString(), parameterType);
+                    }
                 }
+
                 return method.Method.Invoke(type.Assembly.CreateInstance(type.FullName), param);
             }
             catch (Exception ex)
             {
-                throw new DirectException("Error occurred while calling Direct method: " + ex.Message);
+                throw new DirectException("Error occurred while calling Direct method.", ex);
             }
         }
 
