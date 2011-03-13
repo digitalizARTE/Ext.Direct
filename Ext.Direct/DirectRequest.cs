@@ -29,7 +29,7 @@ namespace Ext.Direct
             set;
         }
 
-        [JsonConverter(typeof(ComplexObjectConverter))]
+        //[JsonConverter(typeof(ComplexObjectConverter))]
         public object[] Data
         {
             get;
