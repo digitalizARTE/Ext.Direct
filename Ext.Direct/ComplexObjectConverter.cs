@@ -16,7 +16,7 @@ namespace Ext.Direct
             return false;
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.StartArray)
                 return ReadArray(reader);
@@ -87,7 +87,7 @@ namespace Ext.Direct
             return null;
         }
 
-        public override void WriteJson(JsonWriter writer, object value)
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             throw new NotImplementedException();
         }
