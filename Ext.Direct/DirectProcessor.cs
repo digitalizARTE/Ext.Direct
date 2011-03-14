@@ -50,8 +50,7 @@ namespace Ext.Direct
                 }
 
                 List<DirectRequest> requests = JsonConvert.DeserializeObject<List<DirectRequest>>(json);
-                //if (requests.Count > 0)
-                //{
+
                 JArray raw = JArray.Parse(json);
                 int i = 0;
                 foreach (DirectRequest request in requests)
@@ -60,13 +59,6 @@ namespace Ext.Direct
                     responses.Add(DirectProcessor.ProcessRequest(provider, request));
                     ++i;
                 }
-                //}
-                //else
-                //{
-                //    DirectRequest request = JsonConvert.DeserializeObject<DirectRequest>(json);
-                //    request.RequestData = JObject.Parse(json);
-                //    responses.Add(DirectProcessor.ProcessRequest(provider, request));
-                //}
             }
             DirectExecutionResponse response = new DirectExecutionResponse();
             JsonSerializerSettings outputSettings = new JsonSerializerSettings()
