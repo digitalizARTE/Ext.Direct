@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ext.Direct
+namespace Ext.Direct.Attributes
 {
     /// <summary>
     /// An attribute that indicates requests of this type should never be buffered
