@@ -267,25 +267,22 @@ namespace Ext.Direct
 
                 object[] param = request.Data;
 
-                //if (method.ParseAsJson)
-                //{
-                //    param = new object[] { method.GetParseData(request.RequestData) };
-                //}
-
-                // If any of the parameters of the method we are calling are classes
-                // with the JsonObject attribute then we need to deserialize them...
-                var methodParams = method.Method.GetParameters();
-
-                Type parameterType;
-                for (int i = 0; i < methodParams.Length; ++i)
+                if (param != null)
                 {
-                    // Is parameter marked as a JsonObject?
-                    parameterType = methodParams[i].ParameterType;
-                    var attribs = parameterType.GetCustomAttributes(typeof(JsonObjectAttribute), false);
+                    // If any of the parameters of the method we are calling are classes
+                    // or have the JsonObject attribute then we need to deserialize them...
+                    var methodParams = method.Method.GetParameters();
 
-                    if ((attribs != null) && (attribs.Length > 0))
+                    Type parameterType;
+                    for (int i = 0; i < methodParams.Length; ++i)
                     {
-                        param[i] = JsonConvert.DeserializeObject(param[i].ToString(), parameterType);
+                        // Is parameter a class or marked as a JsonObject?
+                        parameterType = methodParams[i].ParameterType;
+
+                        if (parameterType.IsClass || Utility.HasAttribute(parameterType, typeof(JsonObjectAttribute)))
+                        {
+                            param[i] = JsonConvert.DeserializeObject(param[i].ToString(), parameterType);
+                        }
                     }
                 }
 
@@ -314,12 +311,14 @@ namespace Ext.Direct
                         }
                         else
                         {
-                            throw new DirectException("Unable to parse date parameter.");
+                            throw new DirectException(String.Format("Unable to parse date parameter: '{0}'",
+                                                                    request.Data[idx]));
                         }
                     }
                     else
                     {
-                        throw new DirectException("Unable to parse date parameter.");
+                        throw new DirectException(String.Format("Unable to parse date parameter: '{0}'",
+                                                                request.Data[idx]));
                     }
                 }
                 ++idx;
