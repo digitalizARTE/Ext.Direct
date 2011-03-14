@@ -8,6 +8,13 @@ namespace Ext.Direct
 {
     internal class ResultConverter : JsonConverter
     {
+        /// <summary>
+        /// Reading is not supported by this converter
+        /// </summary>
+        public override bool CanRead
+        {
+            get { return false; }
+        }
 
         public override bool CanConvert(Type objectType)
         {
