@@ -267,7 +267,7 @@ namespace Ext.Direct
 
                 object[] param = request.Data;
 
-                if (param != null)
+                if ((param != null) && (!request.IsUpload))
                 {
                     // If any of the parameters of the method we are calling are classes
                     // or have the JsonObject attribute then we need to deserialize them...
@@ -279,7 +279,9 @@ namespace Ext.Direct
                         // Is parameter a class or marked as a JsonObject?
                         parameterType = methodParams[i].ParameterType;
 
-                        if (parameterType.IsClass || Utility.HasAttribute(parameterType, typeof(JsonObjectAttribute)))
+                        if ((parameterType != typeof(String)) && 
+                            (parameterType.IsClass || 
+                            Utility.HasAttribute(parameterType, typeof(JsonObjectAttribute))))
                         {
                             param[i] = JsonConvert.DeserializeObject(param[i].ToString(), parameterType);
                         }
