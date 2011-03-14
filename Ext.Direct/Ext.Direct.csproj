@@ -62,14 +62,16 @@
     <Compile Include="DirectProviderCache.cs" />
     <Compile Include="DirectRequest.cs" />
     <Compile Include="DirectResponse.cs" />
+    <Compile Include="Parameters\FilterParam.cs" />
+    <Compile Include="Parameters\GroupParam.cs" />
+    <Compile Include="Parameters\ServerProxyParams.cs" />
+    <Compile Include="Parameters\SortParam.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\DirectAliasAttribute.cs" />
-    <Compile Include="ComplexObjectConverter.cs" />
     <Compile Include="DirectExecutionResponse.cs" />
-    <Compile Include="Attributes\ParseAsJsonAttribute.cs" />
     <Compile Include="ResultConverter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
