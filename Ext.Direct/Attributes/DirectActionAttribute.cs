@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ext.Direct
+namespace Ext.Direct.Attributes
 {
     /// <summary>
     /// This attribute should be added to Ext.direct classes that to indicate they will participate in routing.

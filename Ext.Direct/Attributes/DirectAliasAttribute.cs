@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ext.Direct
+namespace Ext.Direct.Attributes
 {
     /// <summary>
     /// Abstract attribute to encapsulate the aliasing behaviour that is exhibited in subclasses.
