@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web;
+using System.Web.SessionState;
 using System.Reflection;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -14,7 +16,6 @@ namespace Ext.Direct
     /// </summary>
     public abstract class DirectHandler : IHttpHandler
     {
-
         public void ProcessRequest(HttpContext context)
         {
             DirectProvider provider = this.GetProvider(context, this.ProviderName);
@@ -34,6 +35,16 @@ namespace Ext.Direct
                     type = "text/html";
                 }
             }
+
+            // Timeout doesn't get set on ASP.NET session cookie, and this causes weirdness, so will fix it here.
+            HttpCookie sessionCookie = HttpContext.Current.Request.Cookies["ASP.NET_SessionId"];
+
+            if (sessionCookie != null)
+            {
+                sessionCookie.Expires = DateTime.Now.Add(new TimeSpan(0, context.Session.Timeout, 0));
+                context.Response.SetCookie(sessionCookie);
+            }
+
             context.Response.ContentType = type;
             context.Response.Write(data);
         }
@@ -63,6 +74,8 @@ namespace Ext.Direct
         {
             get
             {
+                // FIXME: Should set this to true for instance re-use, but need to make sure assembly is thread-safe.
+                // .....: On first inspection would need to fix DirectProviderCache...
                 return false;
             }
 
