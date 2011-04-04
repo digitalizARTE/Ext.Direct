@@ -37,13 +37,14 @@ namespace Ext.Direct
             }
 
             // Timeout doesn't get set on ASP.NET session cookie, and this causes weirdness, so will fix it here.
-            HttpCookie sessionCookie = HttpContext.Current.Request.Cookies["ASP.NET_SessionId"];
+            // Hmm, this makes cookie persist across browser restarts... comment out for now, will revisit later...
+            //HttpCookie sessionCookie = HttpContext.Current.Request.Cookies["ASP.NET_SessionId"];
 
-            if (sessionCookie != null)
-            {
-                sessionCookie.Expires = DateTime.Now.Add(new TimeSpan(0, context.Session.Timeout, 0));
-                context.Response.SetCookie(sessionCookie);
-            }
+            //if (sessionCookie != null)
+            //{
+            //    sessionCookie.Expires = DateTime.Now.Add(new TimeSpan(0, context.Session.Timeout, 0));
+            //    context.Response.SetCookie(sessionCookie);
+            //}
 
             context.Response.ContentType = type;
             context.Response.Write(data);
