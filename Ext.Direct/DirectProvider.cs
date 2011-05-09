@@ -283,7 +283,11 @@ namespace Ext.Direct
                             (parameterType.IsClass || 
                             Utility.HasAttribute(parameterType, typeof(JsonObjectAttribute))))
                         {
-                            param[i] = JsonConvert.DeserializeObject(param[i].ToString(), parameterType);
+                            // Allow class parameters to be null
+                            if (param[i] != null)
+                            {
+                                param[i] = JsonConvert.DeserializeObject(param[i].ToString(), parameterType);
+                            }
                         }
                     }
                 }
