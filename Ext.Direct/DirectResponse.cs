@@ -22,6 +22,12 @@ namespace Ext.Direct
             this.IsUpload = request.IsUpload;
         }
 
+        public DirectResponse(string exceptionMessage)
+        {
+            this.Type = DirectResponse.ResponseExceptionType;
+            this.ExceptionMessage = exceptionMessage;
+        }
+
         [JsonProperty(PropertyName = "type")]
         public string Type
         {
