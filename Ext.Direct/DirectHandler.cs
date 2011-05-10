@@ -22,6 +22,9 @@ namespace Ext.Direct
             string data = string.Empty;
             string type = "text/javascript";
 
+            // TotalBytes hangs sometimes, since it accesses the InputStream, which tries to complete loading in another thread
+            // when not everything in the stream.
+            // Don't have a fix for it at the moment, but believe it occurs more in FF4 and less in Chrome...
             if (context.Request.TotalBytes == 0 && string.IsNullOrEmpty(context.Request["extAction"]))
             {
                 data = provider.ToString();

@@ -40,12 +40,11 @@ namespace Ext.Direct
             }
             else
             {
-                string json = new UTF8Encoding().GetString(httpRequest.BinaryRead(httpRequest.TotalBytes));
+                // Sometimes it seems that TotalBytes and ContentLength are different.
+                // Therefore am using my own stream reader rather than request's BinaryRead.
+                string json = new UTF8Encoding().GetString(Utility.ReadAllInputStream(httpRequest));
 
-                // Sometimes it seems that we get partial data posted.
-                // When this happens TotalBytes and ContentLength are different.
-                // Believe I want to catch this, although not sure what to do when I, erm, do...
-                if (httpRequest.TotalBytes == httpRequest.ContentLength)
+                try
                 {
                     // Force into an array shape
                     if (!json.StartsWith("["))
@@ -67,10 +66,9 @@ namespace Ext.Direct
                         ++i;
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    responses.Add(new DirectResponse(String.Format("The input stream does not contain all the data specified by the content length! JSON posted: {0}",
-                                                                   json)));
+                    responses.Add(new DirectResponse(String.Format("An exception occurred when attempting to decode the requests: {0}", ex)));
                 }
             }
 
