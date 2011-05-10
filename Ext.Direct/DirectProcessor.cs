@@ -40,26 +40,40 @@ namespace Ext.Direct
             }
             else
             {
-                UTF8Encoding encoding = new UTF8Encoding();
-                string json = encoding.GetString(httpRequest.BinaryRead(httpRequest.TotalBytes));
+                string json = new UTF8Encoding().GetString(httpRequest.BinaryRead(httpRequest.TotalBytes));
 
-                // Force into an array shape
-                if (!json.StartsWith("["))
+                // Sometimes it seems that we get partial data posted.
+                // When this happens TotalBytes and ContentLength are different.
+                // Believe I want to catch this, although not sure what to do when I, erm, do...
+                if (httpRequest.TotalBytes == httpRequest.ContentLength)
                 {
-                    json = String.Format("[{0}]", json);
+                    // Force into an array shape
+                    if (!json.StartsWith("["))
+                    {
+                        json = String.Format("[{0}]", json);
+                    }
+
+                    // Get raw array data
+                    JArray raw = JArray.Parse(json);
+
+                    // And also deserialize the requests
+                    List<DirectRequest> requests = JsonConvert.DeserializeObject<List<DirectRequest>>(json);
+
+                    int i = 0;
+                    foreach (DirectRequest request in requests)
+                    {
+                        request.RequestData = (JObject)raw[i];
+                        responses.Add(DirectProcessor.ProcessRequest(provider, request));
+                        ++i;
+                    }
                 }
-
-                List<DirectRequest> requests = JsonConvert.DeserializeObject<List<DirectRequest>>(json);
-
-                JArray raw = JArray.Parse(json);
-                int i = 0;
-                foreach (DirectRequest request in requests)
+                else
                 {
-                    request.RequestData = (JObject)raw[i];
-                    responses.Add(DirectProcessor.ProcessRequest(provider, request));
-                    ++i;
+                    responses.Add(new DirectResponse(String.Format("The input stream does not contain all the data specified by the content length! JSON posted: {0}",
+                                                                   json)));
                 }
             }
+
             DirectExecutionResponse response = new DirectExecutionResponse();
             JsonSerializerSettings outputSettings = new JsonSerializerSettings()
             {
@@ -71,11 +85,14 @@ namespace Ext.Direct
             {
                 outputSettings.Converters.Add(converter);
             }
-            if (responses.Count > 1 || !responses[0].IsUpload)
+
+            // Updated this to guard against having no responses at all.
+            // Was before I added the above else, but good practice anyway...
+            if (responses.Count > 1 || ((responses.Count > 0) && !responses[0].IsUpload))
             {
                 response.Data = JsonConvert.SerializeObject(responses, Formatting.None, outputSettings);
             }
-            else
+            else if (responses.Count > 0)
             {
                 response.IsUpload = true;
                 string outputJson = JsonConvert.SerializeObject(responses[0], Formatting.None, outputSettings);
