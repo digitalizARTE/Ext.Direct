@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Web;
@@ -16,6 +17,14 @@ namespace Ext.Direct
     /// </summary>
     public abstract class DirectHandler : IHttpHandler
     {
+        #region Constants
+        /// <summary>
+        /// The name of the appsetting to use if you want to override the path from the default (i.e. that passed with the request).
+        /// </summary>
+        /// <remarks>Required when proxying through Apache and changing the path to the site from that used by IIS.</remarks>
+        private const string UrlOverrideAppSettingName = "ProviderUrlOverride";
+        #endregion
+
         public void ProcessRequest(HttpContext context)
         {
             DirectProvider provider = this.GetProvider(context, this.ProviderName);
@@ -58,10 +67,16 @@ namespace Ext.Direct
             DirectProviderCache cache = DirectProviderCache.GetInstance();
             if (!cache.ContainsKey(name))
             {
+                string providerUrl = ConfigurationManager.AppSettings.Get(DirectHandler.UrlOverrideAppSettingName);
+                if (String.IsNullOrEmpty(providerUrl))
+                {
+                    providerUrl = context.Request.Path;
+                }
+
                 DirectProvider provider = new DirectProvider()
                 {
                     Name = name,
-                    Url = context.Request.Path,
+                    Url = providerUrl,
                     Namespace = this.Namespace,
                     Timeout = this.Timeout,
                     MaxRetries = this.MaxRetries,
