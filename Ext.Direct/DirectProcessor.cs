@@ -40,9 +40,7 @@ namespace Ext.Direct
             }
             else
             {
-                // Sometimes it seems that TotalBytes and ContentLength are different.
-                // Therefore am using my own stream reader rather than request's BinaryRead.
-                string json = new UTF8Encoding().GetString(Utility.ReadAllInputStream(httpRequest));
+                string json = new UTF8Encoding().GetString(httpRequest.BinaryRead(httpRequest.ContentLength));
 
                 try
                 {

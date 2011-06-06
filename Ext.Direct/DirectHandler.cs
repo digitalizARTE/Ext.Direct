@@ -17,14 +17,6 @@ namespace Ext.Direct
     /// </summary>
     public abstract class DirectHandler : IHttpHandler
     {
-        #region Constants
-        /// <summary>
-        /// The name of the appsetting to use if you want to override the path from the default (i.e. that passed with the request).
-        /// </summary>
-        /// <remarks>Required when proxying through Apache and changing the path to the site from that used by IIS.</remarks>
-        private const string UrlOverrideAppSettingName = "ProviderUrlOverride";
-        #endregion
-
         public void ProcessRequest(HttpContext context)
         {
             DirectProvider provider = this.GetProvider(context, this.ProviderName);
@@ -33,8 +25,8 @@ namespace Ext.Direct
 
             // TotalBytes hangs sometimes, since it accesses the InputStream, which tries to complete loading in another thread
             // when not everything in the stream.
-            // Don't have a fix for it at the moment, but believe it occurs more in FF4 and less in Chrome...
-            if (context.Request.TotalBytes == 0 && string.IsNullOrEmpty(context.Request["extAction"]))
+            // Use ContentLength instead...
+            if (context.Request.ContentLength == 0 && string.IsNullOrEmpty(context.Request["extAction"]))
             {
                 data = provider.ToString();
             }
@@ -48,16 +40,6 @@ namespace Ext.Direct
                 }
             }
 
-            // Timeout doesn't get set on ASP.NET session cookie, and this causes weirdness, so will fix it here.
-            // Hmm, this makes cookie persist across browser restarts... comment out for now, will revisit later...
-            //HttpCookie sessionCookie = HttpContext.Current.Request.Cookies["ASP.NET_SessionId"];
-
-            //if (sessionCookie != null)
-            //{
-            //    sessionCookie.Expires = DateTime.Now.Add(new TimeSpan(0, context.Session.Timeout, 0));
-            //    context.Response.SetCookie(sessionCookie);
-            //}
-
             context.Response.ContentType = type;
             context.Response.Write(data);
         }
@@ -65,18 +47,13 @@ namespace Ext.Direct
         private DirectProvider GetProvider(HttpContext context, string name)
         {
             DirectProviderCache cache = DirectProviderCache.GetInstance();
+
             if (!cache.ContainsKey(name))
             {
-                string providerUrl = ConfigurationManager.AppSettings.Get(DirectHandler.UrlOverrideAppSettingName);
-                if (String.IsNullOrEmpty(providerUrl))
-                {
-                    providerUrl = context.Request.Path;
-                }
-
                 DirectProvider provider = new DirectProvider()
                 {
                     Name = name,
-                    Url = providerUrl,
+                    Url = context.Request.Path,
                     Namespace = this.Namespace,
                     Timeout = this.Timeout,
                     MaxRetries = this.MaxRetries,

@@ -82,32 +82,5 @@ namespace Ext.Direct
             jw.WritePropertyName(name);
             jw.WriteValue(value);
         }
-
-        /// <summary>
-        /// TotalBytes member of the request is flawed, and only shows what is currently in the stream.
-        /// Therefore using that to read, using HttpRequest.BinaryRead, does not get all the data.
-        /// This method attempts to read from the input stream until there is no more to read.
-        /// </summary>
-        /// <param name="request">The current request object.</param>
-        /// <returns>The binary data read from the stream.</returns>
-        public static byte[] ReadAllInputStream(HttpRequest request)
-        {
-            using (var ms = new MemoryStream())
-            {
-                // Nibble at it in 255 chunks...
-                var buffer = new byte[255];
-
-                int i;
-                while ((i = request.InputStream.Read(buffer, 0, 255)) > 0)
-                {
-                    ms.Write(buffer, 0, i);
-                }
-
-                ms.Flush();
-                ms.Position = 0;
-
-                return ms.ToArray();
-            }
-        }
     }
 }
