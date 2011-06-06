@@ -26,7 +26,11 @@ namespace Ext.Direct
             // TotalBytes hangs sometimes, since it accesses the InputStream, which tries to complete loading in another thread
             // when not everything in the stream.
             // Use ContentLength instead...
-            if (context.Request.ContentLength == 0 && string.IsNullOrEmpty(context.Request["extAction"]))
+
+            // This used to check for string.IsNullOrEmpty(context.Request["extAction"])) but in order to eliminate that from the hanging
+            // candidates we've removed it, since we do not need form post at this stage.
+            // When we do need it, making it more targetted may be an idea, such as content.Request.Form["extAction"] etc.
+            if (context.Request.ContentLength == 0)
             {
                 data = provider.ToString();
             }
