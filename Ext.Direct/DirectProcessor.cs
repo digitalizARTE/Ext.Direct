@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web;
@@ -40,7 +41,7 @@ namespace Ext.Direct
             }
             else
             {
-                string json = new UTF8Encoding().GetString(httpRequest.BinaryRead(httpRequest.ContentLength));
+                string json = new StreamReader(httpRequest.InputStream, Encoding.UTF8).ReadToEnd();
 
                 try
                 {
