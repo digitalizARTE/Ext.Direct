@@ -52,7 +52,7 @@ namespace Ext.Direct
         {
             DirectProviderCache cache = DirectProviderCache.GetInstance();
 
-            if (!cache.ContainsKey(name))
+            if (!cache.ContainsProvider(name))
             {
                 DirectProvider provider = new DirectProvider()
                 {
@@ -65,7 +65,7 @@ namespace Ext.Direct
                     Id = this.Id
                 };
                 this.ConfigureProvider(provider);
-                cache.Add(name, provider);
+                cache.Add(provider);
             }
             return cache[name];
         }
@@ -208,7 +208,7 @@ namespace Ext.Direct
         protected void Reset()
         {
             DirectProviderCache cache = DirectProviderCache.GetInstance();
-            if (cache.ContainsKey(this.ProviderName))
+            if (cache.ContainsProvider(this.ProviderName))
             {
                 cache[this.ProviderName].Clear();
             }
