@@ -105,9 +105,20 @@ namespace Ext.Direct
             {
                 r.Result = provider.Execute(request);
             }
-            catch (DirectException ex)
+            catch (Exception ex)
             {
-                r.ExceptionMessage = (ex.InnerException != null) ? ex.ToString() : ex.Message;
+                // Build our error message
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine(ex.Message);
+
+                Exception innerEx = ex.InnerException;
+                while (innerEx != null)
+                {
+                    sb.AppendLine(innerEx.Message);
+                    innerEx = innerEx.InnerException;
+                }
+
+                r.ExceptionMessage = sb.ToString();
                 r.Type = DirectResponse.ResponseExceptionType;
             }
             return r;

@@ -261,43 +261,37 @@ namespace Ext.Direct
                     throw new DirectException("Parameters length does not match");
                 }
             }
-            try
+
+            this.SanitizeDates(method.Method, request);
+
+            object[] param = request.Data;
+
+            if ((param != null) && (!request.IsUpload))
             {
-                this.SanitizeDates(method.Method, request);
+                // If any of the parameters of the method we are calling are classes
+                // or have the JsonObject attribute then we need to deserialize them...
+                var methodParams = method.Method.GetParameters();
 
-                object[] param = request.Data;
-
-                if ((param != null) && (!request.IsUpload))
+                Type parameterType;
+                for (int i = 0; i < methodParams.Length; ++i)
                 {
-                    // If any of the parameters of the method we are calling are classes
-                    // or have the JsonObject attribute then we need to deserialize them...
-                    var methodParams = method.Method.GetParameters();
+                    // Is parameter a class or marked as a JsonObject?
+                    parameterType = methodParams[i].ParameterType;
 
-                    Type parameterType;
-                    for (int i = 0; i < methodParams.Length; ++i)
+                    if ((parameterType != typeof(String)) && 
+                        (parameterType.IsClass || 
+                        Utility.HasAttribute(parameterType, typeof(JsonObjectAttribute))))
                     {
-                        // Is parameter a class or marked as a JsonObject?
-                        parameterType = methodParams[i].ParameterType;
-
-                        if ((parameterType != typeof(String)) && 
-                            (parameterType.IsClass || 
-                            Utility.HasAttribute(parameterType, typeof(JsonObjectAttribute))))
+                        // Allow class parameters to be null
+                        if (param[i] != null)
                         {
-                            // Allow class parameters to be null
-                            if (param[i] != null)
-                            {
-                                param[i] = JsonConvert.DeserializeObject(param[i].ToString(), parameterType);
-                            }
+                            param[i] = JsonConvert.DeserializeObject(param[i].ToString(), parameterType);
                         }
                     }
                 }
+            }
 
-                return method.Method.Invoke(type.Assembly.CreateInstance(type.FullName), param);
-            }
-            catch (Exception ex)
-            {
-                throw new DirectException("Error occurred while calling Direct method.", ex);
-            }
+            return method.Method.Invoke(type.Assembly.CreateInstance(type.FullName), param);
         }
 
         private void SanitizeDates(MethodInfo method, DirectRequest request)
