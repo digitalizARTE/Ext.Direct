@@ -333,7 +333,8 @@ namespace Ext.Direct
                 {
                     if (o != null)
                     {
-                        if (o.GetType() == t)
+                        if (((o is Type) && (o == t)) ||
+                            (o.GetType() == t))
                         {
                             return false;
                         }
