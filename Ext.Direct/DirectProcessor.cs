@@ -41,7 +41,11 @@ namespace Ext.Direct
             }
             else
             {
-                string json = new StreamReader(httpRequest.InputStream, Encoding.UTF8).ReadToEnd();
+                string json = null;
+                using (var reader = new StreamReader(httpRequest.InputStream, Encoding.UTF8))
+                {
+                    json = reader.ReadToEnd();
+                }
 
                 try
                 {
